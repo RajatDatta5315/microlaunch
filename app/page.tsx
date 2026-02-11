@@ -40,7 +40,7 @@ export default function Home() {
             textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
             fontWeight: 'bold'
           }}>
-            🚀 LaunchVault
+            🔗 NodeMeld
           </h1>
           <p style={{ fontSize: '20px', color: 'rgba(255,255,255,0.9)' }}>
             Discover {products.length}+ micro-SaaS products • Part of KRYV Network
@@ -68,6 +68,8 @@ export default function Home() {
 
         {loading ? (
           <p style={{ color: 'white', textAlign: 'center' }}>Loading products...</p>
+        ) : filtered.length === 0 ? (
+          <p style={{ color: 'white', textAlign: 'center' }}>No products found. Be the first to submit!</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
             {filtered.map(product => (
