@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'LaunchVault - Discover Micro-SaaS Products',
+  title: 'NodeMeld - Discover Micro-SaaS Products',
   description: 'The ultimate database of micro-SaaS products. Find alternatives, discover new tools.',
   keywords: 'saas, micro-saas, tools, software, alternatives',
   openGraph: {
-    title: 'LaunchVault - Discover Micro-SaaS Products',
+    title: 'NodeMeld - Discover Micro-SaaS Products',
     description: 'The ultimate database of micro-SaaS products',
     type: 'website',
   }
