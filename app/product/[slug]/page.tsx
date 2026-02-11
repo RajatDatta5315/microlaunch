@@ -2,13 +2,13 @@ import Link from 'next/link';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   try {
-    const product = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product/${params.slug}`).then(r => r.json());
+    const product = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/product/${params.slug}`, { cache: 'no-store' }).then(r => r.json());
     return {
-      title: `${product.name} - LaunchVault`,
-      description: product.description || `Discover ${product.name} on LaunchVault`
+      title: `${product.name} - NodeMeld`,
+      description: product.description || `Discover ${product.name} on NodeMeld`
     };
   } catch {
-    return { title: 'Product - LaunchVault' };
+    return { title: 'Product - NodeMeld' };
   }
 }
 
@@ -62,7 +62,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
         <div style={{ marginTop: '50px', padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
           <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
-            Found this useful? Explore more tools at <Link href="/" style={{ color: 'white' }}>LaunchVault</Link> • Part of <a href="https://kryv.network" style={{ color: 'white' }}>KRYV Network</a>
+            Found this useful? Explore more tools at <Link href="/" style={{ color: 'white' }}>NodeMeld</Link> • Part of <a href="https://kryv.network" style={{ color: 'white' }}>KRYV Network</a>
           </p>
         </div>
       </div>
