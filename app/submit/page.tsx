@@ -17,7 +17,7 @@ export default function Submit() {
       });
       const data = await res.json();
       if (data.success) {
-        setStatus(`✅ Success! Your product is LIVE at launchvault.kryv.network/product/${data.slug}`);
+        setStatus(`✅ Success! Your product is LIVE at nodemeld.kryv.network/product/${data.slug}`);
         setForm({ name: '', url: '', description: '', pricing: '', category: '' });
       } else {
         setStatus('❌ Error: ' + (data.error || 'Unknown error'));
