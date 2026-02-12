@@ -1,6 +1,6 @@
 {
   "name": "nodemeld",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,7 +9,8 @@
   "dependencies": {
     "next": "14.2.18",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "framer-motion": "^11.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
