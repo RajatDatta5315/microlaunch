@@ -152,7 +152,6 @@ export default function Home() {
                 style={{
                   padding: '10px 20px',
                   borderRadius: '12px',
-                  border: 'none',
                   background: selectedCategory === cat ? 'rgba(102,126,234,0.3)' : 'rgba(255,255,255,0.05)',
                   backdropFilter: 'blur(10px)',
                   color: 'white',
