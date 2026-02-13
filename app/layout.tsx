@@ -4,8 +4,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'NodeMeld - World\'s Largest SaaS Directory',
-  description: 'Discover 1000+ micro-SaaS products. Submit yours instantly. Part of KRYV Network.',
-  keywords: 'saas, micro-saas, tools, software, directory, alternatives',
+  description: 'Discover 1000+ micro-SaaS products. Auto-updated daily.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -13,17 +12,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <link rel="icon" href="/favicon.ico" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
         <Script src="https://cdn.jsdelivr.net/npm/eruda" strategy="afterInteractive" />
         <Script id="eruda-init" strategy="afterInteractive">{`eruda.init();`}</Script>
       </head>
       <body style={{ 
         margin: 0, 
-        background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+        background: '#0a0a0f',
         minHeight: '100vh',
-        fontFamily: 'Inter, system-ui'
+        fontFamily: 'Geist, -apple-system, sans-serif',
+        color: 'white'
       }}>
         {children}
       </body>
