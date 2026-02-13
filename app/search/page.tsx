@@ -1,10 +1,10 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
-export default function SearchPage() {
+function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const [results, setResults] = useState<any[]>([]);
@@ -72,18 +72,16 @@ export default function SearchPage() {
                   color: 'white',
                   transition: 'all 0.3s ease'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                    {product.logo_url && (
-                      <img src={product.logo_url} alt={product.name} style={{ width: '48px', height: '48px', marginRight: '12px', borderRadius: '8px' }} />
-                    )}
-                    <h3 style={{ fontSize: '20px', fontWeight: 700 }}>{product.name}</h3>
-                  </div>
+                  {product.logo_url && (
+                    <img src={product.logo_url} alt={product.name} style={{ width: '56px', height: '56px', marginBottom: '16px', borderRadius: '12px' }} />
+                  )}
+                  <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '12px' }}>{product.name}</h3>
                   <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', marginBottom: '12px' }}>
                     {product.description?.substring(0, 120)}...
                   </p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>
-                    <span className="mono">{product.pricing}</span>
-                    <span>{product.category}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                    <span className="mono" style={{ color: '#667eea' }}>{product.pricing}</span>
+                    <span style={{ color: 'rgba(255,255,255,0.5)' }}>{product.category}</span>
                   </div>
                 </Link>
               </motion.div>
@@ -92,5 +90,13 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '40px', textAlign: 'center', color: 'white' }}>Loading...</div>}>
+      <SearchResults />
+    </Suspense>
   );
 }
