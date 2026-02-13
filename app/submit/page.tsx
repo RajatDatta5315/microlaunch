@@ -3,8 +3,22 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 export default function Submit() {
-  const [form, setForm] = useState({ name: '', url: '', description: '', pricing: '', category: '' });
+  const [form, setForm] = useState({ name: '', url: '', description: '', pricing: '', category: '', logo_url: '' });
   const [status, setStatus] = useState('');
+  const [logoPreview, setLogoPreview] = useState('');
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setLogoPreview(base64);
+        setForm({ ...form, logo_url: base64 });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,10 +31,11 @@ export default function Submit() {
       });
       const data = await res.json();
       if (data.success) {
-        setStatus(`✅ Success! Your product is LIVE at nodemeld.kryv.network/product/${data.slug}`);
-        setForm({ name: '', url: '', description: '', pricing: '', category: '' });
+        setStatus(`✅ Success! Live at nodemeld.kryv.network/product/${data.slug}`);
+        setForm({ name: '', url: '', description: '', pricing: '', category: '', logo_url: '' });
+        setLogoPreview('');
       } else {
-        setStatus('❌ Error: ' + (data.error || 'Unknown error'));
+        setStatus('❌ ' + (data.error || 'Error'));
       }
     } catch (err) {
       setStatus('❌ Network error');
@@ -28,52 +43,83 @@ export default function Submit() {
   };
 
   return (
-    <div style={{ padding: '40px 20px', maxWidth: '700px', margin: '0 auto' }}>
-      <div style={{ 
-        background: 'rgba(255,255,255,0.1)', 
-        backdropFilter: 'blur(10px)', 
-        borderRadius: '20px', 
-        padding: '50px',
-        border: '1px solid rgba(255,255,255,0.2)'
-      }}>
-        <Link href="/" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>← Back</Link>
-        
-        <h1 style={{ color: 'white', fontSize: '36px', marginTop: '20px' }}>Submit Your SaaS</h1>
-        <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '30px' }}>Auto-approved • Live instantly • Free forever</p>
-        
-        <form onSubmit={submit}>
+    <div style={{ minHeight: '100vh', background: '#0a0a0f', padding: '40px 20px' }}>
+      <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+        <Link href="/" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px' }}>
+          ← Back
+        </Link>
+
+        <h1 style={{ fontSize: '48px', marginTop: '20px', marginBottom: '10px', fontWeight: 900 }}>Submit Your SaaS</h1>
+        <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '40px', fontSize: '18px' }}>
+          Free • Auto-approved • Live instantly
+        </p>
+
+        <form onSubmit={submit} className="glass" style={{ padding: '40px', borderRadius: '20px' }}>
+          
+          {/* Logo Upload */}
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>
+              Logo (optional)
+            </label>
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleLogoUpload}
+              style={{ 
+                width: '100%', 
+                padding: '12px', 
+                borderRadius: '10px', 
+                border: '1px solid rgba(255,255,255,0.1)', 
+                background: 'rgba(255,255,255,0.03)',
+                color: 'white'
+              }}
+            />
+            {logoPreview && (
+              <img src={logoPreview} alt="Preview" style={{ width: '80px', height: '80px', marginTop: '12px', borderRadius: '12px' }} />
+            )}
+          </div>
+
           <input 
             required 
-            placeholder="Product Name *" 
+            placeholder="Product Name (e.g., Notion, Figma, Linear)" 
             value={form.name} 
             onChange={e => setForm({...form, name: e.target.value})} 
-            style={{ width: '100%', padding: '14px', margin: '12px 0', borderRadius: '10px', border: 'none', fontSize: '15px' }} 
+            className="glass"
+            style={{ width: '100%', padding: '14px', margin: '12px 0', borderRadius: '10px', color: 'white', outline: 'none' }} 
           />
+          
           <input 
             required 
             type="url"
-            placeholder="Website URL * (https://...)" 
+            placeholder="Website URL (https://yourproduct.com)" 
             value={form.url} 
             onChange={e => setForm({...form, url: e.target.value})} 
-            style={{ width: '100%', padding: '14px', margin: '12px 0', borderRadius: '10px', border: 'none', fontSize: '15px' }} 
+            className="glass"
+            style={{ width: '100%', padding: '14px', margin: '12px 0', borderRadius: '10px', color: 'white', outline: 'none' }} 
           />
+          
           <textarea 
             required 
-            placeholder="Description * (Min 50 chars)" 
+            placeholder="Description (Min 50 chars - Describe what your SaaS does, who it's for, key features...)" 
             value={form.description} 
             onChange={e => setForm({...form, description: e.target.value})} 
-            style={{ width: '100%', padding: '14px', margin: '12px 0', borderRadius: '10px', border: 'none', minHeight: '120px', fontSize: '15px' }} 
+            className="glass"
+            style={{ width: '100%', padding: '14px', margin: '12px 0', borderRadius: '10px', minHeight: '120px', color: 'white', outline: 'none' }} 
           />
+          
           <input 
-            placeholder="Pricing (e.g. $9/mo, Free, Freemium)" 
+            placeholder="Pricing (e.g., $9/mo, Free, Freemium, $99/year)" 
             value={form.pricing} 
             onChange={e => setForm({...form, pricing: e.target.value})} 
-            style={{ width: '100%', padding: '14px', margin: '12px 0', borderRadius: '10px', border: 'none', fontSize: '15px' }} 
+            className="glass"
+            style={{ width: '100%', padding: '14px', margin: '12px 0', borderRadius: '10px', color: 'white', outline: 'none' }} 
           />
+          
           <select 
             value={form.category} 
             onChange={e => setForm({...form, category: e.target.value})} 
-            style={{ width: '100%', padding: '14px', margin: '12px 0', borderRadius: '10px', border: 'none', fontSize: '15px' }}
+            className="glass"
+            style={{ width: '100%', padding: '14px', margin: '12px 0', borderRadius: '10px', color: 'white', outline: 'none' }}
           >
             <option value="">Select Category</option>
             <option value="Productivity">Productivity</option>
@@ -88,26 +134,28 @@ export default function Submit() {
           <button 
             type="submit" 
             style={{ 
-              padding: '16px 32px', 
-              background: 'white', 
+              width: '100%',
+              padding: '16px', 
+              background: 'linear-gradient(135deg, #667eea, #764ba2)', 
               border: 'none', 
-              borderRadius: '10px', 
-              fontWeight: 'bold', 
+              borderRadius: '12px', 
+              color: 'white',
+              fontWeight: 700, 
               cursor: 'pointer', 
               marginTop: '20px',
               fontSize: '16px'
             }}
           >
-            🚀 Submit (Free & Instant)
+            🚀 Submit SaaS
           </button>
         </form>
         
         {status && (
-          <div style={{ 
-            marginTop: '30px', 
-            padding: '16px', 
-            background: status.includes('✅') ? 'rgba(0,255,0,0.1)' : 'rgba(255,0,0,0.1)', 
-            borderRadius: '10px',
+          <div className="glass" style={{ 
+            marginTop: '20px', 
+            padding: '20px', 
+            borderRadius: '12px',
+            background: status.includes('✅') ? 'rgba(0,255,0,0.05)' : 'rgba(255,0,0,0.05)',
             color: 'white'
           }}>
             {status}
