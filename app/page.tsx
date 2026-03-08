@@ -52,6 +52,28 @@ const TAG_COLORS: Record<string, string> = {
 
 function ProductCard({ p, onUpvote }: { p: any; onUpvote: (slug: string) => void }) {
   const color = TAG_COLORS[p.category] || '#6b7280';
+  const handleClaim = async (slug: string) => {
+    const token = prompt('Enter your GitHub Personal Access Token to claim this listing:\n(Settings → Developer settings → Personal access tokens → Classic → read:user scope)');
+    if (!token) return;
+    try {
+      const res = await fetch(`${API}/api/claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug, github_token: token }) });
+      const data = await res.json();
+      if (data.success) { alert(`✅ Listing claimed by @${data.claimed_by}! Now you can edit it.`); setEditToken(token); setEditSlug(slug); setShowEdit(true); }
+      else alert(`❌ ${data.error}`);
+    } catch { alert('Network error'); }
+  };
+
+  const handleEdit = async () => {
+    if (!editToken || !editSlug) return;
+    setEditStatus('Saving...');
+    try {
+      const res = await fetch(`${API}/api/edit/${editSlug}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ github_token: editToken, ...editForm }) });
+      const data = await res.json();
+      if (data.success) { setEditStatus('✅ Saved!'); setTimeout(() => { setShowEdit(false); setEditStatus(''); }, 1500); }
+      else setEditStatus(`❌ ${data.error}`);
+    } catch { setEditStatus('Network error'); }
+  };
+
   return (
     <div style={{ background: '#101018', border: `1px solid ${p.is_kryv ? 'rgba(124,58,237,0.15)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 14, padding: 18, display: 'flex', gap: 14, transition: 'border-color 0.2s, transform 0.2s' }}
       onMouseEnter={e => { e.currentTarget.style.borderColor = p.is_kryv ? 'rgba(124,58,237,0.4)' : 'rgba(255,255,255,0.12)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
@@ -77,6 +99,7 @@ function ProductCard({ p, onUpvote }: { p: any; onUpvote: (slug: string) => void
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 10, color: '#444', background: '#1a1a2e', padding: '2px 8px', borderRadius: 6 }}>{p.pricing}</span>
           <a href={p.url} target="_blank" rel="noreferrer" style={{ fontSize: 10, color: '#7c3aed', textDecoration: 'none', fontWeight: 600 }}>Visit →</a>
+          {!p.is_kryv && <button onClick={() => handleClaim(p.slug)} style={{ fontSize: 10, color: '#444', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Claim</button>}
         </div>
       </div>
     </div>
@@ -89,6 +112,11 @@ export default function Home() {
   const [category, setCategory] = useState('All');
   const [upvotes, setUpvotes] = useState<Record<string, number>>({});
   const [showSubmit, setShowSubmit] = useState(false);
+  const [editSlug, setEditSlug] = useState('');
+  const [editToken, setEditToken] = useState('');
+  const [editForm, setEditForm] = useState({ name: '', description: '', logo_url: '', pricing: '', category: '' });
+  const [editStatus, setEditStatus] = useState('');
+  const [showEdit, setShowEdit] = useState(false);
 
   useEffect(() => {
     fetch(`${API}/api/products`).then(r => r.json())
@@ -117,6 +145,28 @@ export default function Home() {
     const matchSearch = !q || p.name.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q);
     return matchCat && matchSearch;
   });
+
+  const handleClaim = async (slug: string) => {
+    const token = prompt('Enter your GitHub Personal Access Token to claim this listing:\n(Settings → Developer settings → Personal access tokens → Classic → read:user scope)');
+    if (!token) return;
+    try {
+      const res = await fetch(`${API}/api/claim`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug, github_token: token }) });
+      const data = await res.json();
+      if (data.success) { alert(`✅ Listing claimed by @${data.claimed_by}! Now you can edit it.`); setEditToken(token); setEditSlug(slug); setShowEdit(true); }
+      else alert(`❌ ${data.error}`);
+    } catch { alert('Network error'); }
+  };
+
+  const handleEdit = async () => {
+    if (!editToken || !editSlug) return;
+    setEditStatus('Saving...');
+    try {
+      const res = await fetch(`${API}/api/edit/${editSlug}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ github_token: editToken, ...editForm }) });
+      const data = await res.json();
+      if (data.success) { setEditStatus('✅ Saved!'); setTimeout(() => { setShowEdit(false); setEditStatus(''); }, 1500); }
+      else setEditStatus(`❌ ${data.error}`);
+    } catch { setEditStatus('Network error'); }
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: "'Space Grotesk', -apple-system, sans-serif" }}>
@@ -182,7 +232,40 @@ export default function Home() {
           )}
         </div>
 
-        {/* Submit modal */}
+        {/* Edit modal */}
+        {showEdit && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 }}
+            onClick={e => e.target === e.currentTarget && setShowEdit(false)}>
+            <div style={{ background: '#101018', border: '1px solid rgba(124,58,237,0.3)', borderRadius: 20, padding: 32, width: '100%', maxWidth: 500 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 6 }}>Edit Listing</h2>
+              <p style={{ fontSize: 12, color: '#555', marginBottom: 20 }}>Editing: <span style={{ color: '#7c3aed' }}>{editSlug}</span></p>
+              {[
+                { label: 'Product Name', key: 'name', placeholder: 'My SaaS' },
+                { label: 'Logo URL', key: 'logo_url', placeholder: 'https://logo.clearbit.com/myapp.com' },
+                { label: 'Pricing', key: 'pricing', placeholder: 'Free / $9/mo' },
+                { label: 'Category', key: 'category', placeholder: 'AI / Marketing / Development...' },
+              ].map(({ label, key, placeholder }) => (
+                <div key={key} style={{ marginBottom: 12 }}>
+                  <label style={{ fontSize: 11, color: '#555', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</label>
+                  <input value={(editForm as any)[key]} onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))} placeholder={placeholder}
+                    style={{ width: '100%', background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '9px 12px', color: '#e0e0e0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+              ))}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: 11, color: '#555', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Description</label>
+                <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} placeholder="What does your SaaS do? (min 50 chars)"
+                  style={{ width: '100%', background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '9px 12px', color: '#e0e0e0', fontSize: 13, outline: 'none', resize: 'vertical', minHeight: 80, boxSizing: 'border-box' }} />
+              </div>
+              {editStatus && <p style={{ fontSize: 12, color: editStatus.startsWith('✅') ? '#4ade80' : editStatus.startsWith('❌') ? '#ef4444' : '#9ca3af', marginBottom: 12 }}>{editStatus}</p>}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={handleEdit} style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #7c3aed, #ec4899)', border: 'none', borderRadius: 12, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Save Changes</button>
+                <button onClick={() => setShowEdit(false)} style={{ padding: '12px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, color: '#666', fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+      {/* Submit modal */}
         {showSubmit && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: 20 }}
             onClick={e => e.target === e.currentTarget && setShowSubmit(false)}>
