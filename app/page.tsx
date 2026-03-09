@@ -211,6 +211,12 @@ export default function Home() {
           <button onClick={() => setShowSubmit(!showSubmit)} style={{ padding: '9px 18px', background: 'linear-gradient(135deg, #667eea, #764ba2)', borderRadius: 10, color: '#fff', fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
             + Submit Tool
           </button>
+          <Link href="/earn" style={{ padding: '9px 16px', background: 'rgba(34,217,138,0.1)', border: '1px solid rgba(34,217,138,0.22)', borderRadius: 10, color: '#22d98a', fontSize: 12, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            💰 Earn
+          </Link>
+          <Link href="/campaigns" style={{ padding: '9px 16px', background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.22)', borderRadius: 10, color: '#a855f7', fontSize: 12, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            📣 Run Ads
+          </Link>
         </div>
       </div>
 
