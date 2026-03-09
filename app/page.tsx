@@ -50,7 +50,7 @@ const TAG_COLORS: Record<string, string> = {
   Security:'#ef4444', Finance:'#f59e0b', Productivity:'#3b82f6', Social:'#8b5cf6', Other:'#6b7280',
 };
 
-function ProductCard({ p, onUpvote }: { p: any; onUpvote: (slug: string) => void }) {
+function ProductCard({ p, onUpvote, editToken = '', editSlug = '', editForm = {}, setEditStatus = () => {}, setShowEdit = () => {} }: { p: any; onUpvote: (slug: string) => void; editToken?: string; editSlug?: string; editForm?: any; setEditStatus?: (s: string) => void; setShowEdit?: (b: boolean) => void }) {
   const color = TAG_COLORS[p.category] || '#6b7280';
   const handleClaim = (slug: string) => {
     // Redirect to KRYV GitHub OAuth — callback will return token to this page
