@@ -27,14 +27,11 @@ export default function CampaignsPage() {
     }
   }, []);
 
-  const login = () => {
-    const returnUrl = window.location.origin + '/campaigns';
-    const pat = window.prompt('Enter your GitHub Personal Access Token:\n(github.com/settings/tokens → New classic token → check: read:user)');
-    if (pat) {
-      localStorage.setItem('kryv_gh_token', pat);
-      localStorage.setItem('github_token', pat);
-      window.location.reload();
-    }
+const login = () => {
+    const clientId = 'Ov23li2oOtJSQKCUwIRr';
+    const redirect = encodeURIComponent('https://velqa.kryv.network/portal');
+    const state = encodeURIComponent('redirect:' + window.location.origin + '/campaigns');
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirect}&scope=read:user&state=${state}`;
   };
 
   const loadMyData = async (t: string) => {
