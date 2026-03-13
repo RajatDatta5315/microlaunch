@@ -53,17 +53,8 @@ const TAG_COLORS: Record<string, string> = {
 function ProductCard({ p, onUpvote, editToken = '', editSlug = '', editForm = {}, setEditStatus = () => {}, setShowEdit = () => {} }: { p: any; onUpvote: (slug: string) => void; editToken?: string; editSlug?: string; editForm?: any; setEditStatus?: (s: string) => void; setShowEdit?: (b: boolean) => void }) {
   const color = TAG_COLORS[p.category] || '#6b7280';
   const handleClaim = (slug: string) => {
-    const token = window.prompt('Enter your GitHub Personal Access Token to claim this listing:\n(github.com/settings/tokens → New classic token → read:user scope)');
-    if (!token) return;
-    const username = window.prompt('Enter your GitHub username:');
-    if (!username) return;
-    fetch(`${API}/api/claim`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug, github_token: token })
-    }).then(r => r.json()).then(data => {
-      if (data.success) { window.location.href = window.location.origin + `?github_token=${token}&github_user=${username}&claim_slug=${slug}`; }
-      else alert('Claim failed: ' + (data.error || 'Unknown error'));
-    }).catch(() => alert('Network error'));
+    // Delegate to Home component's OAuth handleClaim via onClaim prop
+    onClaim(slug);
   };
 
   const handleEdit = async () => {
@@ -121,10 +112,33 @@ export default function Home() {
   const [editStatus, setEditStatus] = useState('');
   const [showEdit, setShowEdit] = useState(false);
   const [githubUser, setGithubUser] = useState('');
+  const [ghToken, setGhToken] = useState('');
+  const [pendingClaimSlug, setPendingClaimSlug] = useState('');
 
-  // GitHub OAuth removed — token handled via prompt()
-
+  // GitHub OAuth — pick up token + claim_slug from URL after callback
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get('github_token');
+    const u = params.get('github_user');
+    const claimSlug = params.get('claim_slug');
+    if (t) {
+      setGhToken(t);
+      if (u) setGithubUser(u);
+      window.history.replaceState({}, '', '/');
+      // Auto-complete claim if we have a slug
+      if (claimSlug) {
+        fetch(`${API}/api/claim`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug: claimSlug, github_token: t })
+        }).then(r => r.json()).then(data => {
+          if (data.success) {
+            alert(`✅ "${claimSlug}" claimed successfully! Welcome, ${u}`);
+          } else {
+            alert('Claim failed: ' + (data.error || 'Unknown error'));
+          }
+        }).catch(() => alert('Network error completing claim'));
+      }
+    }
     fetch(`${API}/api/products`).then(r => r.json())
       .then(data => { if (Array.isArray(data)) setApiProducts(data); })
       .catch(() => {});
@@ -153,17 +167,30 @@ export default function Home() {
   });
 
   const handleClaim = (slug: string) => {
-    const token = window.prompt('Enter your GitHub Personal Access Token to claim this listing:\n(github.com/settings/tokens → New classic token → read:user scope)');
-    if (!token) return;
-    const username = window.prompt('Enter your GitHub username:');
-    if (!username) return;
-    fetch(`${API}/api/claim`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug, github_token: token })
-    }).then(r => r.json()).then(data => {
-      if (data.success) { window.location.href = window.location.origin + `?github_token=${token}&github_user=${username}&claim_slug=${slug}`; }
-      else alert('Claim failed: ' + (data.error || 'Unknown error'));
-    }).catch(() => alert('Network error'));
+    // If already connected via OAuth, claim directly
+    if (ghToken) {
+      fetch(`${API}/api/claim`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, github_token: ghToken })
+      }).then(r => r.json()).then(data => {
+        if (data.success) alert(`✅ "${slug}" claimed! You're now the owner.`);
+        else alert('Claim failed: ' + (data.error || 'Unknown error'));
+      }).catch(() => alert('Network error'));
+      return;
+    }
+    // Redirect to GitHub OAuth with claim_slug in state
+    const clientId = process.env.NEXT_PUBLIC_NM_GH_CLIENT_ID || 'Ov23li2oOtJSQKCUwIRr';
+    const redirect = encodeURIComponent(
+      clientId === 'Ov23li2oOtJSQKCUwIRr'
+        ? 'https://velqa.kryv.network/portal'
+        : 'https://nodemeld.kryv.network/api/github-callback'
+    );
+    const state = encodeURIComponent(
+      clientId === 'Ov23li2oOtJSQKCUwIRr'
+        ? `redirect:https://nodemeld.kryv.network?claim_slug=${slug}`
+        : `claim_slug=${slug}`
+    );
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirect}&scope=read:user&state=${state}`;
   };
 
   const handleEdit = async () => {
