@@ -54,9 +54,14 @@ export default function EarnPage() {
   };
 
 const login = () => {
-    const clientId = 'Ov23li2oOtJSQKCUwIRr';
-    const redirect = encodeURIComponent('https://velqa.kryv.network/portal');
-    const state = encodeURIComponent('redirect:' + window.location.origin + '/earn');
+    const clientId = process.env.NEXT_PUBLIC_NM_GH_CLIENT_ID || 'Ov23li2oOtJSQKCUwIRr';
+    const isNewApp = clientId !== 'Ov23li2oOtJSQKCUwIRr';
+    const redirect = encodeURIComponent(isNewApp
+      ? 'https://nodemeld.kryv.network/api/github-callback'
+      : 'https://velqa.kryv.network/portal');
+    const state = encodeURIComponent(isNewApp
+      ? 'redirect_path=/earn'
+      : 'redirect:' + window.location.origin + '/earn');
     window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirect}&scope=read:user&state=${state}`;
   };
 
